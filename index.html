@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Montiva FinTrack</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap">
+<style>
+/*
+  Layout: single-page download landing, full-bleed hero, alternating prose+visual sections
+  Color: forest green identity (financial trust), warm off-white ground, amber accent for CTA
+  Type: Sora (display — geometric, modern, trustworthy) + DM Sans (body — readable, neutral)
+  Motion: scroll-reveal on sections (MOTION 2), hover micro on buttons and cards
+*/
+
+/* ── Tokens ─────────────────────────────────────────────── */
+:root {
+  --bg:         #F5F4F0;
+  --bg-alt:     #EDECEA;
+  --fg:         #1A1A18;
+  --fg-mid:     #4A4A44;
+  --fg-muted:   #7A7A72;
+  --green:      #1B4D3E;
+  --green-mid:  #2D6B56;
+  --green-light:#E8F0EC;
+  --amber:      #D4821A;
+  --amber-hover:#B86E12;
+  --border:     #D8D6D0;
+  --card-bg:    #FFFFFF;
+  --radius-sm:  6px;
+  --radius-md:  12px;
+  --radius-lg:  20px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:         #141612;
+    --bg-alt:     #1C1E1A;
+    --fg:         #EDECEA;
+    --fg-mid:     #B8B8AE;
+    --fg-muted:   #7A7A72;
+    --green:      #3D8C6E;
+    --green-mid:  #4FA882;
+    --green-light:#1A2E25;
+    --amber:      #E8961E;
+    --amber-hover:#F5A82A;
+    --border:     #2E3028;
+    --card-bg:    #1E201C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:         #141612;
+  --bg-alt:     #1C1E1A;
+  --fg:         #EDECEA;
+  --fg-mid:     #B8B8AE;
+  --fg-muted:   #7A7A72;
+  --green:      #3D8C6E;
+  --green-mid:  #4FA882;
+  --green-light:#1A2E25;
+  --amber:      #E8961E;
+  --amber-hover:#F5A82A;
+  --border:     #2E3028;
+  --card-bg:    #1E201C;
+  color-scheme: dark;
+}
+
+/* ── Skeleton Shimmer ────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+.shimmer-active .shimmer-block {
+  display: inline-block;
+  border-radius: 6px;
+  animation: shimmer 1.4s infinite linear;
+  background: linear-gradient(
+    90deg,
+    var(--shimmer-base) 25%,
+    var(--shimmer-shine) 50%,
+    var(--shimmer-base) 75%
+  );
+  background-size: 1200px 100%;
+  color: transparent !important;
+  pointer-events: none;
+  user-select: none;
+}
+.shimmer-active .shimmer-block * { visibility: hidden; }
+:root {
+  --shimmer-base:  #E0DFDB;
+  --shimmer-shine: #F0EFEB;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --shimmer-base:  #232520;
+    --shimmer-shine: #2E3028;
+  }
+}
+:root[data-theme="dark"] {
+  --shimmer-base:  #232520;
+  --shimmer-shine: #2E3028;
+}
+:root[data-theme="light"] {
+  --shimmer-base:  #E0DFDB;
+  --shimmer-shine: #F0EFEB;
+}
+
+/* ── Reset & Base ────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Sora', system-ui, sans-serif;
+  text-wrap: balance;
+  line-height: 1.2;
+}
+
+img { max-width: 100%; display: block; }
+
+a { color: inherit; text-decoration: none; }
+
+button, a[href] { cursor: pointer; }
+
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .reveal { opacity: 1 !important; transform: none !important; }
+}
+
+/* ── Utility ─────────────────────────────────────────────── */
+.inner {
+  max-width: 1080px;
+  margin-inline: auto;
+  padding-inline: 0;
+}
+
+/* ── Reveal animation ────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Navbar ──────────────────────────────────────────────── */
+.nav {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 100;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding-block: 14px;
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 101;
+  background: var(--bg);
+}
+
+.nav-inner {
+  max-width: 1080px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--fg);
+}
+
+.nav-logo svg { flex-shrink: 0; }
+
+.nav-actions { display: flex; align-items: center; gap: 12px; }
+
+.btn-theme {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  color: var(--fg-mid);
+  font-size: 0.85rem;
+  transition: border-color 0.2s, color 0.2s;
+  line-height: 1;
+}
+.btn-theme:hover { border-color: var(--green); color: var(--fg); }
+
+.btn-dl-sm {
+  background: var(--amber);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 18px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: background 0.2s, transform 0.15s;
+  white-space: nowrap;
+}
+.btn-dl-sm:hover { background: var(--amber-hover); transform: translateY(-1px); }
+.btn-dl-sm:active { transform: translateY(0); }
+
+/* ── Hero ────────────────────────────────────────────────── */
+.hero {
+  background: var(--green);
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+  padding-block: 80px 72px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle topographic lines — identity motif, represents financial "peaks" */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 80% 50%, rgba(255,255,255,0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  max-width: 1080px;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.hero-eyebrow span {
+  width: 24px;
+  height: 1px;
+  background: rgba(255,255,255,0.4);
+  display: inline-block;
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: #fff;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.hero h1 em {
+  font-style: normal;
+  color: #A8D8C4;
+}
+
+.hero-desc {
+  color: rgba(255,255,255,0.75);
+  font-size: 1.05rem;
+  max-width: 46ch;
+  margin-bottom: 36px;
+  line-height: 1.65;
+}
+
+.hero-cta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.btn-dl-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--amber);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 14px 28px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(212,130,26,0.35);
+  min-height: 44px;
+}
+.btn-dl-hero:hover {
+  background: var(--amber-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(212,130,26,0.45);
+}
+.btn-dl-hero:active { transform: translateY(0); }
+
+.hero-note {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.82rem;
+}
+
+/* Hero visual: mock app window */
+.hero-visual {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.app-window {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+}
+
+.app-titlebar {
+  background: #F0F0EE;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-r { background: #FF6058; }
+.dot-y { background: #FEBC2E; }
+.dot-g { background: #28C840; }
+
+.app-titlebar-name {
+  font-size: 0.75rem;
+  color: #888;
+  margin-left: 8px;
+  font-family: 'Sora', sans-serif;
+}
+
+.app-body {
+  padding: 20px;
+  background: #FAFAFA;
+}
+
+.app-balance {
+  background: var(--green);
+  border-radius: 10px;
+  padding: 16px 20px;
+  color: #fff;
+  margin-bottom: 16px;
+}
+.app-balance-label {
+  font-size: 0.72rem;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.app-balance-num {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.app-balance-change {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+.app-txlist { display: flex; flex-direction: column; gap: 8px; }
+
+.app-tx {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1px solid #EBEBEB;
+}
+.app-tx-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.app-tx-info { flex: 1; min-width: 0; }
+.app-tx-name { font-size: 0.8rem; font-weight: 500; color: #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.app-tx-date { font-size: 0.7rem; color: #999; }
+.app-tx-amount { font-size: 0.85rem; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.app-tx-amount.out { color: #E05252; }
+.app-tx-amount.in  { color: #2D8C5A; }
+
+/* Chart bars */
+.app-chart { margin-top: 14px; display: flex; align-items: flex-end; gap: 6px; height: 48px; padding: 0 2px; }
+.bar { flex: 1; border-radius: 4px 4px 0 0; background: var(--green); opacity: 0.3; }
+.bar.active { opacity: 1; }
+.bar.mid { opacity: 0.6; }
+
+/* ── Features ────────────────────────────────────────────── */
+.features {
+  background: var(--bg);
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+  padding-block: 80px;
+}
+
+.section-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 700;
+  color: var(--fg);
+  margin-bottom: 16px;
+}
+
+.section-desc {
+  color: var(--fg-mid);
+  max-width: 52ch;
+  margin-bottom: 48px;
+  line-height: 1.65;
+}
+
+/* Features use varied sizes to show hierarchy — not copy-paste identical cards */
+.feat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 16px;
+}
+
+.feat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 28px 24px;
+  transition: border-color 0.25s, transform 0.2s;
+}
+.feat-card:hover { border-color: var(--green-mid); transform: translateY(-3px); }
+
+/* Large card spans 2 columns — hierarchy, not template */
+.feat-card.large { grid-column: span 2; display: flex; gap: 32px; align-items: flex-start; }
+
+.feat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: var(--green-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-bottom: 16px;
+}
+.feat-card.large .feat-icon { margin-bottom: 0; }
+
+.feat-h {
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--fg);
+}
+
+.feat-p {
+  font-size: 0.9rem;
+  color: var(--fg-mid);
+  line-height: 1.6;
+}
+
+/* ── How it works ─────────────────────────────────────────── */
+.how {
+  background: var(--bg-alt);
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+  padding-block: 80px;
+}
+
+/* Steps laid out as a horizontal timeline with connector line — not 3-round-icon template */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  position: relative;
+  margin-top: 48px;
+}
+
+.steps::before {
+  content: "";
+  position: absolute;
+  top: 22px;
+  left: calc(12.5% + 22px);
+  right: calc(12.5% + 22px);
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.step { text-align: center; padding-inline: 12px; position: relative; z-index: 1; }
+
+.step-num {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--fg-muted);
+  margin-bottom: 16px;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.step.active .step-num {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.step-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: 8px;
+}
+
+.step-desc {
+  font-size: 0.82rem;
+  color: var(--fg-muted);
+  line-height: 1.55;
+}
+
+/* ── Download section ─────────────────────────────────────── */
+.download {
+  background: var(--bg);
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+  padding-block: 80px;
+}
+
+.download-inner {
+  max-width: 1080px;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.sys-reqs { margin-top: 32px; }
+
+.sys-reqs h3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin-bottom: 14px;
+}
+
+.req-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+.req-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: var(--fg-mid);
+}
+
+.req-list li::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  margin-top: 7px;
+  flex-shrink: 0;
+}
+
+.dl-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+}
+
+.dl-card-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dl-app-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dl-app-name {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--fg);
+}
+.dl-app-ver { font-size: 0.8rem; color: var(--fg-muted); margin-top: 2px; }
+
+.dl-platform-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.dl-platform-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  transition: border-color 0.2s, background 0.2s;
+  text-align: left;
+  width: 100%;
+  min-height: 44px;
+}
+.dl-platform-btn:hover { border-color: var(--green); background: var(--green-light); }
+
+.dl-platform-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+.dl-platform-info { flex: 1; min-width: 0; }
+.dl-platform-name {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--fg);
+}
+.dl-platform-sub { font-size: 0.75rem; color: var(--fg-muted); }
+
+.dl-cta {
+  background: var(--amber);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 15px 24px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(212,130,26,0.3);
+  min-height: 52px;
+}
+.dl-cta:hover { background: var(--amber-hover); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(212,130,26,0.4); }
+.dl-cta:active { transform: translateY(0); }
+
+.dl-note { font-size: 0.78rem; color: var(--fg-muted); text-align: center; margin-top: 12px; }
+
+/* ── Footer ───────────────────────────────────────────────── */
+footer {
+  background: var(--green);
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+  padding-block: 36px;
+}
+
+.footer-inner {
+  max-width: 1080px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  font-size: 0.95rem;
+}
+
+.footer-copy { font-size: 0.8rem; color: rgba(255,255,255,0.5); }
+
+/* ── Mobile ───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+  .hero-visual { justify-content: center; }
+  .app-window { max-width: 100%; }
+
+  .feat-grid { grid-template-columns: 1fr; }
+  .feat-card.large { grid-column: span 1; flex-direction: column; gap: 0; }
+  .feat-card.large .feat-icon { margin-bottom: 16px; }
+
+  .steps { grid-template-columns: 1fr 1fr; gap: 28px; }
+  .steps::before { display: none; }
+
+  .download-inner { grid-template-columns: 1fr; gap: 40px; }
+
+  .footer-inner { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 480px) {
+  .steps { grid-template-columns: 1fr; }
+  .hero { padding-block: 56px 48px; }
+  .features, .how, .download { padding-block: 56px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<header>
+  <nav class="nav" aria-label="Navigasi utama">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" aria-label="Montiva FinTrack beranda">
+        <!-- Gunung dari logo user -->
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <circle cx="14" cy="14" r="14" fill="#1B4D3E"/>
+          <polygon points="14,5 21,20 7,20" fill="#3D8C6E"/>
+          <polygon points="14,5 18,13 10,13" fill="#E8F0EC"/>
+          <path d="M6,20 Q14,16 22,20" stroke="none"/>
+          <circle cx="20" cy="12" r="3.5" fill="#D4821A" stroke="#fff" stroke-width="1"/>
+          <path d="M18.8,12.5 L19.6,11.5 L20.4,12.3 L21.4,11.2" stroke="#fff" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+        </svg>
+        Montiva FinTrack
+      </a>
+      <div class="nav-actions">
+        <button class="btn-theme" id="theme-toggle" aria-label="Ganti tema terang/gelap">
+          <span id="theme-icon">☀️</span>
+        </button>
+        <a href="https://github.com/HumFourn/montiva-fintrack/releases/download/v1.0.0/Montiva-FinTrack-Setup.zip"
+           class="btn-dl-sm">
+          Unduh Sekarang
+        </a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <!-- Hero -->
+  <section class="hero" id="hero">
+    <div class="hero-inner inner">
+      <div class="reveal">
+        <div class="hero-eyebrow"><span></span> Aplikasi Desktop Gratis</div>
+        <h1>Catat keuanganmu,<br><em>tanpa ribet</em></h1>
+        <p class="hero-desc">
+          Montiva FinTrack adalah aplikasi desktop untuk mencatat pemasukan, pengeluaran,
+          dan memantau kondisi keuangan harianmu dalam satu tampilan yang bersih.
+        </p>
+        <div class="hero-cta">
+          <a href="https://github.com/HumFourn/montiva-fintrack/releases/download/v1.0.0/Montiva-FinTrack-Setup.zip"
+             class="btn-dl-hero">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M9 2v9M5.5 7.5L9 11l3.5-3.5M3 14h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Instal Montiva FinTrack
+          </a>
+          <span class="hero-note">File .zip, Windows</span>
+        </div>
+      </div>
+
+      <!-- Mock app window -->
+      <div class="hero-visual reveal" style="transition-delay: 0.15s">
+        <div class="app-window" role="img" aria-label="Tampilan antarmuka Montiva FinTrack">
+          <div class="app-titlebar">
+            <div class="dot dot-r"></div>
+            <div class="dot dot-y"></div>
+            <div class="dot dot-g"></div>
+            <span class="app-titlebar-name">Montiva FinTrack</span>
+          </div>
+          <div class="app-body">
+            <div class="app-balance">
+              <div class="app-balance-label">Total Saldo</div>
+              <div class="app-balance-num">Rp 4.250.000</div>
+              <div class="app-balance-change">November 2026</div>
+            </div>
+            <div class="app-txlist">
+              <div class="app-tx">
+                <div class="app-tx-icon" style="background:#EEF6FF">🛒</div>
+                <div class="app-tx-info">
+                  <div class="app-tx-name">Belanja bulanan</div>
+                  <div class="app-tx-date">10 Nov</div>
+                </div>
+                <div class="app-tx-amount out">-Rp 320.000</div>
+              </div>
+              <div class="app-tx">
+                <div class="app-tx-icon" style="background:#E8F6EE">💼</div>
+                <div class="app-tx-info">
+                  <div class="app-tx-name">Gaji freelance</div>
+                  <div class="app-tx-date">8 Nov</div>
+                </div>
+                <div class="app-tx-amount in">+Rp 1.500.000</div>
+              </div>
+              <div class="app-tx">
+                <div class="app-tx-icon" style="background:#FFF5EB">🍜</div>
+                <div class="app-tx-info">
+                  <div class="app-tx-name">Makan siang</div>
+                  <div class="app-tx-date">7 Nov</div>
+                </div>
+                <div class="app-tx-amount out">-Rp 45.000</div>
+              </div>
+            </div>
+            <div class="app-chart" aria-hidden="true">
+              <div class="bar" style="height:35%"></div>
+              <div class="bar mid" style="height:55%"></div>
+              <div class="bar" style="height:40%"></div>
+              <div class="bar mid" style="height:70%"></div>
+              <div class="bar" style="height:45%"></div>
+              <div class="bar active" style="height:85%"></div>
+              <div class="bar mid" style="height:60%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="fitur">
+    <div class="inner">
+      <div class="reveal">
+        <div class="section-label">Fitur</div>
+        <h2 class="section-title">Semua yang kamu butuhkan<br>untuk catat keuangan harian</h2>
+        <p class="section-desc">Dirancang sederhana agar kamu fokus mencatat, bukan mempelajari aplikasinya.</p>
+      </div>
+
+      <div class="feat-grid">
+        <!-- Large card: fitur utama, dapat 2 kolom sebagai anchor visual -->
+        <div class="feat-card large reveal" style="transition-delay:0.1s">
+          <div class="feat-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <rect x="2" y="4" width="18" height="14" rx="3" stroke="#1B4D3E" stroke-width="1.6" fill="none"/>
+              <path d="M6 9h10M6 13h6" stroke="#1B4D3E" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="feat-h">Catatan Pemasukan dan Pengeluaran</h3>
+            <p class="feat-p">
+              Tambahkan transaksi dengan cepat, lengkapi dengan kategori dan catatan.
+              Data tersinkron ke akunmu secara otomatis, aman diakses dari perangkat mana pun.
+            </p>
+          </div>
+        </div>
+
+        <!-- Single card: fitur pendukung -->
+        <div class="feat-card reveal" style="transition-delay:0.15s">
+          <div class="feat-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <path d="M4 16 L8 10 L12 13 L16 7 L20 9" stroke="#1B4D3E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <circle cx="20" cy="9" r="1.5" fill="#1B4D3E"/>
+            </svg>
+          </div>
+          <h3 class="feat-h">Grafik Pengeluaran</h3>
+          <p class="feat-p">Lihat tren keuanganmu dalam grafik mingguan dan bulanan yang mudah dipahami.</p>
+        </div>
+
+        <div class="feat-card reveal" style="transition-delay:0.2s">
+          <div class="feat-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <circle cx="11" cy="11" r="8" stroke="#1B4D3E" stroke-width="1.6" fill="none"/>
+              <path d="M11 7v4l3 2" stroke="#1B4D3E" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="feat-h">Riwayat Lengkap</h3>
+          <p class="feat-p">Lacak semua transaksi dengan tanggal dan kategori, bisa difilter kapan saja.</p>
+        </div>
+
+        <div class="feat-card reveal" style="transition-delay:0.25s">
+          <div class="feat-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <path d="M4 6h14M4 11h10M4 16h7" stroke="#1B4D3E" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="feat-h">Kategori Kustom</h3>
+          <p class="feat-p">Atur kategori transaksi sesuai kebutuhanmu: makan, transportasi, tagihan, dan lainnya.</p>
+        </div>
+
+        <div class="feat-card reveal" style="transition-delay:0.3s">
+          <div class="feat-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <path d="M11 2 L13.5 8 L20 8.5 L15 13 L16.8 20 L11 16.5 L5.2 20 L7 13 L2 8.5 L8.5 8 Z" stroke="#1B4D3E" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="feat-h">Data Aman di Cloud</h3>
+          <p class="feat-p">Daftar akun sekali, datamu tersinkron otomatis. Ganti perangkat kapan saja tanpa kehilangan riwayat transaksi.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="how" id="cara-pakai">
+    <div class="inner">
+      <div class="reveal">
+        <div class="section-label">Cara Pakai</div>
+        <h2 class="section-title">Mulai dalam hitungan menit</h2>
+      </div>
+      <div class="steps reveal" style="transition-delay:0.1s">
+        <div class="step active">
+          <div class="step-num">1</div>
+          <div class="step-title">Unduh file</div>
+          <p class="step-desc">Unduh file .zip Montiva FinTrack ke komputer kamu.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-title">Ekstrak arsip</div>
+          <p class="step-desc">Klik kanan file .zip, pilih "Extract Here" atau gunakan WinRAR.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-title">Jalankan aplikasi</div>
+          <p class="step-desc">Buka folder hasil ekstrak, klik dua kali file aplikasi Montiva.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-title">Mulai mencatat</div>
+          <p class="step-desc">Tambahkan transaksi pertamamu dan kelola keuanganmu hari ini.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download -->
+  <section class="download" id="unduh">
+    <div class="download-inner">
+      <div class="reveal">
+        <div class="section-label">Unduh Aplikasi</div>
+        <h2 class="section-title">Montiva FinTrack<br>untuk Windows</h2>
+        <p style="color:var(--fg-mid); line-height:1.65; margin-top:12px;">
+          Tersedia sebagai file .zip yang bisa langsung dijalankan setelah diekstrak.
+          Daftarkan akun di dalam aplikasi agar datamu aman dan bisa diakses dari perangkat lain.
+        </p>
+
+        <div class="sys-reqs">
+          <h3>Persyaratan Sistem</h3>
+          <ul class="req-list">
+            <li>Windows 10 atau lebih baru (64-bit)</li>
+            <li>Ruang penyimpanan minimal 100 MB</li>
+            <li>Koneksi internet untuk sinkronisasi akun</li>
+            <li>Ekstrak dengan WinRAR, 7-Zip, atau Windows bawaan</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="reveal" style="transition-delay:0.1s">
+        <div class="dl-card">
+          <div class="dl-card-top">
+            <div class="dl-app-icon" aria-hidden="true">
+              <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+                <polygon points="15,4 22,19 8,19" fill="rgba(255,255,255,0.7)"/>
+                <polygon points="15,4 19,13 11,13" fill="#fff"/>
+                <circle cx="21.5" cy="11" r="4" fill="#D4821A" stroke="#fff" stroke-width="1.2"/>
+                <path d="M20,11.5 L21,10 L22,11 L23,9.5" stroke="#fff" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div>
+              <div class="dl-app-name">Montiva FinTrack</div>
+              <div class="dl-app-ver">Versi awal · Windows · File .zip</div>
+            </div>
+          </div>
+
+          <div class="dl-platform-row">
+            <a href="https://github.com/HumFourn/montiva-fintrack/releases/download/v1.0.0/Montiva-FinTrack-Setup.zip"
+               target="_blank" rel="noopener" class="dl-platform-btn">
+              <span class="dl-platform-icon" aria-hidden="true">🪟</span>
+              <div class="dl-platform-info">
+                <div class="dl-platform-name">Windows (64-bit)</div>
+                <div class="dl-platform-sub">File .zip via GitHub Releases</div>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+
+          <a href="https://github.com/HumFourn/montiva-fintrack/releases/download/v1.0.0/Montiva-FinTrack-Setup.zip"
+             target="_blank" rel="noopener" class="dl-cta">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M10 3v10M6 9l4 4 4-4M4 16h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Unduh Montiva FinTrack
+          </a>
+          <p class="dl-note">Gratis. Daftar akun untuk menjaga data tetap aman di semua perangkat.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+        <circle cx="11" cy="11" r="11" fill="rgba(255,255,255,0.1)"/>
+        <polygon points="11,3 17,17 5,17" fill="rgba(255,255,255,0.5)"/>
+        <polygon points="11,3 14,10 8,10" fill="#fff"/>
+      </svg>
+      Montiva FinTrack
+    </div>
+    <p class="footer-copy">Dibuat dengan sepenuh hati. Gratis untuk semua.</p>
+  </div>
+</footer>
+
+<script>
+  // Theme toggle
+  const toggleBtn = document.getElementById('theme-toggle');
+  const icon = document.getElementById('theme-icon');
+  const root = document.documentElement;
+
+  function getTheme() {
+    try { return localStorage.getItem('mf-theme') || 'system'; } catch { return 'system'; }
+  }
+  function setTheme(t) {
+    try { localStorage.setItem('mf-theme', t); } catch {}
+    if (t === 'dark') { root.setAttribute('data-theme', 'dark'); icon.textContent = '🌙'; }
+    else if (t === 'light') { root.setAttribute('data-theme', 'light'); icon.textContent = '☀️'; }
+    else {
+      root.removeAttribute('data-theme');
+      const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      icon.textContent = dark ? '🌙' : '☀️';
+    }
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    const cur = getTheme();
+    if (cur === 'system') {
+      const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(sysDark ? 'light' : 'dark');
+    } else if (cur === 'dark') { setTheme('light'); }
+    else { setTheme('system'); }
+  });
+
+  setTheme(getTheme());
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => obs.observe(el));
+  } else {
+    reveals.forEach(el => el.classList.add('visible'));
+  }
+
+  // Skeleton shimmer on slow connection
+  (function() {
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const slow = conn && (conn.effectiveType === '2g' || conn.effectiveType === 'slow-2g' || conn.saveData);
+    if (slow) {
+      document.documentElement.classList.add('shimmer-active');
+      const shimmerEls = document.querySelectorAll('h1,h2,h3,h4,p,.btn-primary,.btn-outline,.feature-title,.feature-desc,.step-title,.step-desc,.hero-badge,.hero-eyebrow,.dl-platform-name,.dl-platform-sub,.footer-brand,.footer-tagline');
+      shimmerEls.forEach(el => el.classList.add('shimmer-block'));
+      window.addEventListener('load', () => {
+        document.documentElement.classList.remove('shimmer-active');
+        shimmerEls.forEach(el => el.classList.remove('shimmer-block'));
+      });
+    }
+  })();
+
+  // Step hover highlight
+  document.querySelectorAll('.step').forEach((step, i) => {
+    step.addEventListener('mouseenter', () => {
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      step.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
